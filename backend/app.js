@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 //création de l'application express
 const userRoutes = require('./routes/user');
+const bcrypt = require('bcrypt');
 const app = express();
 //accès au corps de la requête
 app.use(express.json());
