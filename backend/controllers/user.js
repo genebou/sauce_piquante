@@ -16,12 +16,17 @@ exports.signup = (req, res, next) => {
         .catch(error => res.status(500).json({ error }));
     
 };
+//on cherche l'utilisateur dans la base de données
+//si l'utilisateur n'existe pas on renvoie une erreur
 exports.login = (req, res, next) => {
 User.findOne({ email: req.body.email })
+
     .then(user => {
+        //si l'utilisateur n'existe pas
         if (user === null) {
             res.status(401).json({ error: 'Paire identifiant/mot de passe incorrect!' });
         }else{
+            //si l'utilisateur existe on compare le mot de passe
             bcrypt.compare(req.body.password, user.password)
                 .then(valid => {
                     if(!valid){
@@ -37,7 +42,8 @@ User.findOne({ email: req.body.email })
                 });
             }
         })
-                .catch(error => res.status(500).json({ error }));
+        //erreur serveur
+          .catch(error => res.status(500).json({ error }));
                 
         }
     })
