@@ -2,11 +2,13 @@ const mongoose = require('mongoose');
 //importation du package express
 const express = require('express');
 //création de l'application express
+const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 const bcrypt = require('bcrypt');
 const app = express();
 //accès au corps de la requête
 app.use(express.json());
+const path = require('path');
 
 
 // middleware pour éviter les erreurs de CORS
@@ -26,7 +28,8 @@ mongoose.connect('mongodb+srv://genevievebourchis:67975y5l@cluster0.nhotc3b.mong
 //route vers la route auth.signup 
 
 
-
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
 
 
