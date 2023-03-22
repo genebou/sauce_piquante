@@ -14,6 +14,7 @@ const auth = require('../middleware/auth');
 
 //--Create Sauce-- 
 router.post('/', auth, multer, sauceCtrl.createSauce);
+router.get('/',auth,sauceCtrl.getAllSauces);
 
 
     

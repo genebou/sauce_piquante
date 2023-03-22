@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
+
 module.exports = (req, res, next) => {
+    console.log(2)
   // récupération du token dans le header authorization de la requête
   
     try{
@@ -12,6 +14,7 @@ module.exports = (req, res, next) => {
         req.auth={
             userId: userId
         };
+        next();
         //gestion des erreurs  (si le token n'est pas bon)
     }catch (error) {  
         res.status(401).json({ error: error | 'Requête non authentifiée !' });

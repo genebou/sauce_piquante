@@ -6,6 +6,7 @@ const fs = require("fs");
 
 //--------------------------------Create Sauce------------------------------------- 
 exports.createSauce = (req, res, next) => {
+  console.log("1")
   const sauceObject = JSON.parse(req.body.sauce);
   //--Delete Id automatically generated & sent by Front-end - Sauce Id created in MongoDB
   delete sauceObject._id;
@@ -78,7 +79,7 @@ exports.deleteSauce = (req, res, next) => {
 };
 
 //--------------------------------Display All Sauces------------------------------------- 
-exports.getAllSauce = (req, res, next) => {
+exports.getAllSauces = (req, res, next) => {
   Sauce.find()
     .then((sauces) => res.status(200).json(sauces))
     .catch((error) => res.status(400).json({ error }));
