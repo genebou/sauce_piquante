@@ -1,4 +1,4 @@
-//--Retrieve Sauce model--
+//-- Import Sauce model--
 const Sauce = require("../models/Sauce");
 
 //--Retrieve Node file system module to manage Downloads & Images modification--
@@ -8,7 +8,7 @@ const fs = require("fs");
 exports.createSauce = (req, res, next) => {
   console.log("1")
   const sauceObject = JSON.parse(req.body.sauce);
-  //--Delete Id automatically generated & sent by Front-end - Sauce Id created in MongoDB
+  //----Delete Id automatically generated & sent by Front-end - Sauce Id created in MongoDB
   delete sauceObject._id;
   //--Create model Sauce instance-- 
   const sauce = new Sauce({
@@ -26,49 +26,56 @@ exports.createSauce = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
     
-//--------------------------------Modify Sauce------------------------------------- 
 exports.modifySauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
       if (sauce.userId !== req.auth.userId) {
         res.status(403).json({ error: "Unauthorized request" });
       } else if (sauce.userId == req.auth.userId) {
-         //--Delete old image from Server
-        const filename = sauce.imageUrl.split('/images/')[1];
-        fs.unlink(`images/${filename}`, () => {
-          const sauceObject = req.file 
-            ? {
-                ...JSON.parse(req.body.sauce),
-                imageUrl: `${req.protocol}://${req.get('host')}/images/${
-                  req.file.filename
-                }`,
-              }
-            : { ...req.body };
-          Sauce.updateOne(
-            //--Apply parameters of sauceObject--
-            { _id: req.params.id },
-            { ...sauceObject, _id: req.params.id }
-          )
-            .then(() => res.status(200).json({ message: "Sauce modifiée" }))
-            .catch((error) => res.status(400).json({ error }));
-        });
+         //--imgUrl modification-- if new image
+        const sauceObject = req.file
+          ? {
+              ...JSON.parse(req.body.sauce),
+              imageUrl: `${req.protocol}://${req.get("host")}/images/${
+                req.file.filename
+              }`,
+            }
+          : { ...req.body };
+        Sauce.updateOne(
+          //--Apply parameters of sauceObject--
+          { _id: req.params.id },
+          { ...sauceObject, _id: req.params.id }
+        )
+          .then(() => res.status(200).json({ message: "Sauce modifiée" }))
+          .catch((error) => res.status(400).json({ error }));
       }
     })
     .catch((error) => res.status(400).json({ error }));
 };
 
+ 
 //--------------------------------Delete Sauce------------------------------------- 
+// 
 exports.deleteSauce = (req, res, next) => {
-  //--Searching Object to have Image URL & Delete Image file in Database--
+ // trouver la sauce dans la base de données 
   Sauce.findOne({ _id: req.params.id })
+  //vérifier si l'id de l'utilisateur correspond à celui de la sauce
     .then((sauce) => {
+      //si l'id de l'utilisateur ne correspond pas à celui de la sauce  
       if (sauce.userId !== req.auth.userId) {
+        //envoyer une erreur 403
         res.status(403).json({ error: "Unauthorized request" });
-      } else if (sauce.userId == req.auth.userId) {
+      } 
+      //si l'id de l'utilisateur correspond à celui de la sauce
+      // modifier l'url de l'image si changement d'image
+      else if (sauce.userId == req.auth.userId) {
+        //récupérer le nom du fichier de l'image à supprimer
         const filename = sauce.imageUrl.split("/images/")[1];
-         //--Calling unlink to delete file--
+         //supprimer le fichier de l'image dans le dossier images
+         //remplacer le fichier de l'image par le nouveau fichier de l'image
         fs.unlink(`images/${filename}`, () => {
-          //--Delete document from Database--
+          //si l'image n'est pas remplacée par une nouvelle image   suppression de la sauce dans la base de données  
+          
           Sauce.deleteOne({ _id: req.params.id })
             .then(() => res.status(200).json({ message: "Sauce supprimée" }))
             .catch((error) => res.status(400).json({ error }));
@@ -77,6 +84,7 @@ exports.deleteSauce = (req, res, next) => {
     })
     .catch((error) => res.status(500).json({ error }));
 };
+
 
 //--------------------------------Display All Sauces------------------------------------- 
 exports.getAllSauces = (req, res, next) => {
